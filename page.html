@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Notes App</title>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+    header {
+      padding: 1rem;
+      background: #210F37;
+      color: #fff;
+      text-align: center;
+    }
+    main {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+    #editor, #preview {
+      width: 50%;
+      padding: 2px;
+      box-sizing: border-box;
+      overflow-y: auto;
+    }
+    #editor {
+      border-right: 1px solid #ccc;
+      background-color: #09122C;
+    }
+    #preview{
+        background-color: #081230;
+        color: #fff;
+        padding-left: 1rem;
+    }
+    textarea {
+      width: 100%;
+      height: 100%;
+      border: none;
+      resize: none;
+      font-family: monospace;
+      font-size: 1rem;
+      background-color: #09122C;
+      color: #fff;
+    }
+    #controls {
+      padding: 0.5rem;
+      background: #4F1C51;
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+    }
+    #noteInput{
+        padding: 1rem;
+    }
+    button {
+      padding: 0.5rem 1rem;
+      border: none;
+      background: #A55B4B;
+      color: #fff;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    button:hover {
+      background: #DCA06D;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Notes App</h1>
+  </header>
+  <div id="controls">
+      <button id="clearBtn">New Note</button>
+      <button id="saveBtn">Save Note</button>
+    <button id="exportBtn">Export .txt</button>
+  </div>
+  <main>
+    <section id="editor">
+      <textarea id="noteInput" placeholder="Write your note here..."></textarea>
+    </section>
+    <section id="preview">
+      <div id="notePreview"></div>
+    </section>
+  </main>
+  <script>
+    const noteInput = document.getElementById('noteInput');
+    const notePreview = document.getElementById('notePreview');
+    const saveBtn = document.getElementById('saveBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const exportBtn = document.getElementById('exportBtn');
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const saved = localStorage.getItem('note');
+      if (saved) {
+        noteInput.value = saved;
+        renderPreview(saved);
+      }
+    });
+
+    function renderPreview(content) {
+      notePreview.innerHTML = marked.parse(content);
+    }
+
+    noteInput.addEventListener('input', (e) => {
+      const content = e.target.value;
+      renderPreview(content);
+    });
+
+    saveBtn.addEventListener('click', () => {
+      localStorage.setItem('note', noteInput.value);
+      alert('Note saved!');
+    });
+
+    clearBtn.addEventListener('click', () => {
+      if (confirm('Wants to start new note? Please note your unsaved changes will be lost.')) {
+        noteInput.value = '';
+        renderPreview('');
+        localStorage.removeItem('note');
+      }
+    });
+
+    exportBtn.addEventListener('click', () => {
+      const blob = new Blob([noteInput.value], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'note.txt';
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+  </script>
+</body>
+</html>
